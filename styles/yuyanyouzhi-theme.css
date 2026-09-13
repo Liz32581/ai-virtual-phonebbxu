@@ -1,0 +1,239 @@
+﻿/* ============================================ */
+/* 欲言又止主题 - 适配 ai-virtual-phone 项目     */
+/* 核心部分：气泡 + 顶栏 + 输入框 + 深色模式     */
+/* ============================================ */
+
+/* ── 全局变量 ── */
+:root {
+  /* 顶栏 */
+  --chat-header-bg: #ffffff;
+  --chat-header-title-color: #1a1a1a;
+  --chat-header-border: 1px solid rgba(0,0,0,0.06);
+  --back-btn-color: #1a1a1a;
+  --online-dot-color: #4caf50;
+  --online-status-color: #999999;
+  --at-symbol-color: #1a1a1a;
+  --at-symbol-size: 14px;
+  --at-symbol-weight: bold;
+  --settings-btn-color: #1a1a1a;
+  --settings-font-size: 12px;
+  --settings-font-weight: 500;
+
+  /* 气泡 */
+  --bubble-me-bg: #95EC69;
+  --bubble-me-color: #000000;
+  --bubble-them-bg: #ffffff;
+  --bubble-them-color: #1a1a1a;
+  --bubble-radius: 18px;
+  --bubble-radius-me-top: 18px;
+  --bubble-radius-me-bottom: 4px;
+  --bubble-radius-them-top: 18px;
+  --bubble-radius-them-bottom: 4px;
+
+  /* 输入框 */
+  --input-area-bg: #ffffff;
+  --input-line-color: #e0e0e0;
+  --input-text-color: #1a1a1a;
+  --placeholder-color: #b3b3b3;
+  --send-btn-color: #1a1a1a;
+
+  /* 时间标签 */
+  --time-pat-bg: rgba(255,255,255,0.65);
+  --time-pat-color: #999999;
+  --time-pat-blur: blur(12px) saturate(180%);
+  --time-pat-border: 1px solid rgba(0,0,0,0.04);
+  --time-pat-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* ============================================ */
+/* 顶栏美化                                      */
+/* ============================================ */
+.chat-room-wrapper .page-header {
+  background-color: var(--chat-header-bg) !important;
+  border-bottom: var(--chat-header-border) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+}
+
+/* 标题文字 */
+.chat-room-wrapper .page-title {
+  color: var(--chat-header-title-color) !important;
+  font-weight: 600 !important;
+  font-size: 16px !important;
+  letter-spacing: 0.3px;
+}
+
+/* 标题前加 @ 符号 */
+.chat-room-wrapper .page-title::before {
+  content: "@";
+  padding-right: 2px;
+  font-size: var(--at-symbol-size);
+  color: var(--at-symbol-color);
+  font-weight: var(--at-symbol-weight);
+}
+
+/* 标题后加在线状态 */
+.chat-room-wrapper .page-title::after {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--online-dot-color);
+  margin-left: 8px;
+  vertical-align: middle;
+  box-shadow: 0 0 4px var(--online-dot-color);
+}
+
+/* ============================================ */
+/* 气泡美化                                      */
+/* ============================================ */
+
+/* 用户气泡（我发的） */
+.chat-bubble-role-user {
+  background: var(--bubble-me-bg) !important;
+  color: var(--bubble-me-color) !important;
+  border-radius: var(--bubble-radius-me-top) var(--bubble-radius-me-top) var(--bubble-radius-me-bottom) var(--bubble-radius-me-top) !important;
+  border: none !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
+  padding: 10px 14px !important;
+}
+
+/* 对方气泡 */
+.chat-bubble-role-assistant {
+  background: var(--bubble-them-bg) !important;
+  color: var(--bubble-them-color) !important;
+  border-radius: var(--bubble-radius-them-top) var(--bubble-radius-them-top) var(--bubble-radius-them-top) var(--bubble-radius-them-bottom) !important;
+  border: none !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
+  padding: 10px 14px !important;
+}
+
+/* 去掉气泡的多余边框和轮廓 */
+.chat-bubble-role-user,
+.chat-bubble-role-assistant {
+  outline: none !important;
+}
+
+/* ============================================ */
+/* 输入框美化 - 下划线风格                        */
+/* ============================================ */
+.chat-input-bar {
+  background: var(--input-area-bg) !important;
+  border-top: none !important;
+  padding: 12px 16px 20px !important;
+}
+
+/* 输入框变成下划线风格 */
+.chat-input-bar .chat-input-textarea {
+  border: none !important;
+  border-bottom: 2px solid var(--input-line-color) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: var(--input-text-color) !important;
+  padding: 8px 4px !important;
+  font-size: 14px !important;
+  transition: border-color 0.3s ease;
+}
+
+.chat-input-bar .chat-input-textarea:focus {
+  border-bottom-color: var(--chat-header-title-color) !important;
+  outline: none !important;
+}
+
+.chat-input-bar .chat-input-textarea::placeholder {
+  color: var(--placeholder-color) !important;
+}
+
+/* 操作按钮区域 */
+.chat-input-bar .chat-input-actions {
+  padding-top: 8px !important;
+}
+
+.chat-input-bar .chat-input-actions svg {
+  color: var(--send-btn-color) !important;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.chat-input-bar .chat-input-actions svg:hover {
+  opacity: 1;
+}
+
+/* ============================================ */
+/* 时间戳标签美化                                 */
+/* ============================================ */
+.chat-msg-wrapper[data-role="system"] {
+  font-size: 11px !important;
+}
+
+.chat-time-stamp {
+  background: var(--time-pat-bg) !important;
+  color: var(--time-pat-color) !important;
+  backdrop-filter: var(--time-pat-blur) !important;
+  -webkit-backdrop-filter: var(--time-pat-blur) !important;
+  border: var(--time-pat-border) !important;
+  box-shadow: var(--time-pat-shadow) !important;
+  border-radius: 12px !important;
+  padding: 3px 10px !important;
+  font-size: 10px !important;
+}
+
+/* ============================================ */
+/* 消息列表背景                                   */
+/* ============================================ */
+.chat-room-wrapper > .page-body {
+  background-color: transparent !important;
+}
+
+/* ============================================ */
+/* 深色模式适配                                   */
+/* ============================================ */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --chat-header-bg: #000000 !important;
+    --chat-header-title-color: #e0e0e0 !important;
+    --chat-header-border: 1px solid #333333 !important;
+    --back-btn-color: #e0e0e0 !important;
+    --online-dot-color: #4caf50 !important;
+    --online-status-color: #888888 !important;
+    --at-symbol-color: #e0e0e0 !important;
+    --settings-btn-color: #e0e0e0 !important;
+    --bubble-me-bg: #262626 !important;
+    --bubble-me-color: #ffffff !important;
+    --bubble-them-bg: #2d2d2d !important;
+    --bubble-them-color: #e0e0e0 !important;
+    --input-area-bg: #000000 !important;
+    --input-line-color: #f0f0f0 !important;
+    --send-btn-color: #f0f0f0 !important;
+    --placeholder-color: #b3b3b3 !important;
+    --input-text-color: #e0e0e0 !important;
+    --time-pat-bg: rgba(30,30,30,0.65) !important;
+    --time-pat-color: #a0a0a0 !important;
+    --time-pat-border: 1px solid rgba(255,255,255,0.08) !important;
+    --time-pat-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
+  }
+
+  .chat-room-wrapper .page-header {
+    background-color: #000000 !important;
+    background-image: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .chat-room-layer {
+    background: #000000 !important;
+  }
+
+  .chat-input-bar {
+    background: #000000 !important;
+    border-top: none !important;
+  }
+
+  .chat-bubble-role-user,
+  .chat-bubble-role-assistant {
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+  }
+}
