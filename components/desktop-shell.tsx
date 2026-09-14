@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { Component, memo, useCallback, useEffect, useInsertionEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ErrorInfo, type ReactNode } from "react";
 
@@ -995,6 +995,8 @@ function useAndroidCaretKeyboardLift() {
       if (focusedElement) requestUpdate();
     };
 
+    let scrollFallbackTimer = 0;
+
     const handleFocusIn = (event: FocusEvent) => {
       const target = event.target;
       if (!isKeyboardEditableElement(target)) return;
@@ -1003,11 +1005,19 @@ function useAndroidCaretKeyboardLift() {
         initialInnerHeight = Math.max(initialInnerHeight, window.innerHeight);
       }
       requestUpdate();
+      if (scrollFallbackTimer) clearTimeout(scrollFallbackTimer);
+      scrollFallbackTimer = window.setTimeout(() => {
+        scrollFallbackTimer = 0;
+        if (currentLift < 1 && focusedElement === target && document.activeElement === target) {
+          target.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 600);
     };
 
     const handleFocusOut = () => {
       focusedElement = null;
       fallbackKeyboardHeight = 0;
+      if (scrollFallbackTimer) { clearTimeout(scrollFallbackTimer); scrollFallbackTimer = 0; }
       applyLift(0);
     };
 
@@ -1030,6 +1040,8 @@ function useAndroidCaretKeyboardLift() {
 
     return () => {
       if (raf) window.cancelAnimationFrame(raf);
+      if (scrollFallbackTimer) clearTimeout(scrollFallbackTimer);
+      if (scrollFallbackTimer) clearTimeout(scrollFallbackTimer);
       document.removeEventListener("focusin", handleFocusIn);
       document.removeEventListener("focusout", handleFocusOut);
       document.removeEventListener("click", handleCaretMove, true);
