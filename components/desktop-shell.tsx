@@ -935,6 +935,7 @@ function useAndroidCaretKeyboardLift() {
     let currentLift = 0;
     let initialInnerHeight = window.innerHeight;
     let fallbackKeyboardHeight = 0;
+    let forceEstimatedKeyboard = 0;
 
     const applyLift = (nextLift: number) => {
       const rounded = Math.max(0, Math.round(nextLift));
@@ -968,9 +969,13 @@ function useAndroidCaretKeyboardLift() {
       const targetRect = getKeyboardTargetRect(element);
       const gap = 36;
 
-      if (keyboardInset < 50) {
+      if (keyboardInset < 50 && forceEstimatedKeyboard < 50) {
         applyLift(0);
         return;
+      }
+      if (keyboardInset < 50 && forceEstimatedKeyboard >= 50) {
+        keyboardInset = forceEstimatedKeyboard;
+        keyboardTop = window.innerHeight - forceEstimatedKeyboard;
       }
 
       const naturalBottom = targetRect.bottom + currentLift;
@@ -1010,6 +1015,7 @@ function useAndroidCaretKeyboardLift() {
         forceLiftTimer = 0;
         if (currentLift < 1 && focusedElement === target && document.activeElement === target) {
           const estimatedKeyboard = Math.round(window.innerHeight * 0.42);
+          forceEstimatedKeyboard = estimatedKeyboard;
           const targetRect = getKeyboardTargetRect(target);
           const estimatedKeyboardTop = window.innerHeight - estimatedKeyboard;
           const naturalBottom = targetRect.bottom;
@@ -1022,6 +1028,7 @@ function useAndroidCaretKeyboardLift() {
     const handleFocusOut = () => {
       focusedElement = null;
       fallbackKeyboardHeight = 0;
+      forceEstimatedKeyboard = 0;
       if (forceLiftTimer) { clearTimeout(forceLiftTimer); forceLiftTimer = 0; }
       applyLift(0);
     };
