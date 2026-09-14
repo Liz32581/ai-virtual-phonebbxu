@@ -1051,7 +1051,7 @@ function useAndroidCaretKeyboardLift() {
       if (focusedElement) requestUpdate();
     };
 
-    let scrollFallbackTimer = 0;
+    let forceLiftTimer = 0;
 
     const handleFocusIn = (event: FocusEvent) => {
       const target = event.target;
@@ -1061,19 +1061,24 @@ function useAndroidCaretKeyboardLift() {
         initialInnerHeight = Math.max(initialInnerHeight, window.innerHeight);
       }
       requestUpdate();
-      if (scrollFallbackTimer) clearTimeout(scrollFallbackTimer);
-      scrollFallbackTimer = window.setTimeout(() => {
-        scrollFallbackTimer = 0;
+      if (forceLiftTimer) clearTimeout(forceLiftTimer);
+      forceLiftTimer = window.setTimeout(() => {
+        forceLiftTimer = 0;
         if (currentLift < 1 && focusedElement === target && document.activeElement === target) {
-          target.scrollIntoView({ behavior: "smooth", block: "center" });
+          const estimatedKeyboard = Math.round(window.innerHeight * 0.42);
+          const targetRect = getKeyboardTargetRect(target);
+          const estimatedKeyboardTop = window.innerHeight - estimatedKeyboard;
+          const naturalBottom = targetRect.bottom;
+          const neededLift = Math.max(0, naturalBottom + 36 - estimatedKeyboardTop);
+          applyLift(Math.min(estimatedKeyboard, neededLift));
         }
-      }, 600);
+      }, 400);
     };
 
     const handleFocusOut = () => {
       focusedElement = null;
       fallbackKeyboardHeight = 0;
-      if (scrollFallbackTimer) { clearTimeout(scrollFallbackTimer); scrollFallbackTimer = 0; }
+      if (forceLiftTimer) { clearTimeout(forceLiftTimer); forceLiftTimer = 0; }
       applyLift(0);
     };
 
@@ -1096,8 +1101,8 @@ function useAndroidCaretKeyboardLift() {
 
     return () => {
       if (raf) window.cancelAnimationFrame(raf);
-      if (scrollFallbackTimer) clearTimeout(scrollFallbackTimer);
-      if (scrollFallbackTimer) clearTimeout(scrollFallbackTimer);
+      if (forceLiftTimer) clearTimeout(forceLiftTimer);
+      if (forceLiftTimer) clearTimeout(forceLiftTimer);
       document.removeEventListener("focusin", handleFocusIn);
       document.removeEventListener("focusout", handleFocusOut);
       document.removeEventListener("click", handleCaretMove, true);
