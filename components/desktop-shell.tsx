@@ -918,62 +918,6 @@ function getKeyboardTargetRect(element: HTMLElement): KeyboardTargetRect {
   };
 }
 
-function useKeyboardDebugOverlay() {
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (!/Android/i.test(navigator.userAgent)) return;
-    const mobileMq = window.matchMedia("(max-width: 600px) and (hover: none) and (pointer: coarse)");
-    if (!mobileMq.matches) return;
-
-    const div = document.createElement("div");
-    div.id = "kb-debug";
-    div.style.cssText = "position:fixed;top:0;left:0;z-index:99999;background:rgba(0,0,0,0.75);color:#0f0;font:11px monospace;padding:6px 8px;pointer-events:none;white-space:pre;max-width:70vw;border-radius:0 0 8px 0;";
-    document.body.appendChild(div);
-
-    const vp = window.visualViewport;
-    let initH = window.innerHeight;
-    let focused = false;
-
-    const update = () => {
-      const ih = window.innerHeight;
-      const vpH = vp ? Math.round(vp.height) : "N/A";
-      const vpOT = vp ? Math.round(vp.offsetTop) : "N/A";
-      const kbInset = vp ? Math.round(ih - vp.height - vp.offsetTop) : "N/A";
-      const ihDiff = initH - ih;
-      div.textContent = [
-        "initH:" + initH,
-        "innerH:" + ih + " (diff:" + ihDiff + ")",
-        "vp.h:" + vpH,
-        "vp.offT:" + vpOT,
-        "kbInset:" + kbInset,
-        "focus:" + focused,
-        "ua:" + navigator.userAgent.slice(0, 60),
-      ].join("\n");
-    };
-
-    const onFocusIn = () => { focused = true; update(); };
-    const onFocusOut = () => { focused = false; update(); };
-    const onResize = () => { if (!focused && window.innerHeight > initH) initH = window.innerHeight; update(); };
-
-    update();
-    document.addEventListener("focusin", onFocusIn);
-    document.addEventListener("focusout", onFocusOut);
-    window.addEventListener("resize", onResize);
-    vp?.addEventListener("resize", update);
-    vp?.addEventListener("scroll", update);
-    const timer = setInterval(update, 500);
-
-    return () => {
-      clearInterval(timer);
-      document.removeEventListener("focusin", onFocusIn);
-      document.removeEventListener("focusout", onFocusOut);
-      window.removeEventListener("resize", onResize);
-      vp?.removeEventListener("resize", update);
-      vp?.removeEventListener("scroll", update);
-      div.remove();
-    };
-  }, []);
-}
 function useAndroidCaretKeyboardLift() {
   useEffect(() => {
     if (typeof window === "undefined" || typeof document === "undefined") return;
@@ -1102,7 +1046,6 @@ function useAndroidCaretKeyboardLift() {
     return () => {
       if (raf) window.cancelAnimationFrame(raf);
       if (forceLiftTimer) clearTimeout(forceLiftTimer);
-      if (forceLiftTimer) clearTimeout(forceLiftTimer);
       document.removeEventListener("focusin", handleFocusIn);
       document.removeEventListener("focusout", handleFocusOut);
       document.removeEventListener("click", handleCaretMove, true);
@@ -1147,7 +1090,6 @@ export function DesktopShell({ initialThemeProfile, initialThemeAssets }: Deskto
     musicOverlayControllerRef.current = controller;
   }, []);
   useAndroidCaretKeyboardLift();
-  useKeyboardDebugOverlay();
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
   const [layout, setLayout] = useState<DesktopLayout>(DEFAULT_LAYOUT);
   // Dock is an ordered icon-id list (max DOCK_MAX), kept disjoint from `layout`.
