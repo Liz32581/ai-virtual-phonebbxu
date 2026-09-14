@@ -928,11 +928,13 @@ function useAndroidCaretKeyboardLift() {
       return;
     }
 
-    const mobileMq = window.matchMedia("(max-width: 500px) and (hover: none) and (pointer: coarse)");
+    const mobileMq = window.matchMedia("(max-width: 600px) and (hover: none) and (pointer: coarse)");
     const viewport = window.visualViewport;
     let focusedElement: HTMLElement | null = null;
     let raf = 0;
     let currentLift = 0;
+    let initialInnerHeight = window.innerHeight;
+    let fallbackKeyboardHeight = 0;
 
     const applyLift = (nextLift: number) => {
       const rounded = Math.max(0, Math.round(nextLift));
@@ -948,17 +950,25 @@ function useAndroidCaretKeyboardLift() {
     const update = () => {
       raf = 0;
       const element = focusedElement;
-      if (!element || document.activeElement !== element || !mobileMq.matches || !viewport) {
+      if (!element || document.activeElement !== element || !mobileMq.matches) {
         applyLift(0);
         return;
       }
 
-      const keyboardTop = viewport.offsetTop + viewport.height;
-      const keyboardInset = Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop);
+      let keyboardInset = 0;
+      let keyboardTop = window.innerHeight;
+      if (viewport) {
+        keyboardInset = Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop);
+        keyboardTop = viewport.offsetTop + viewport.height;
+      }
+      if (keyboardInset < 50 && fallbackKeyboardHeight > 80) {
+        keyboardInset = fallbackKeyboardHeight;
+        keyboardTop = window.innerHeight - fallbackKeyboardHeight;
+      }
       const targetRect = getKeyboardTargetRect(element);
       const gap = 36;
 
-      if (keyboardInset < 80) {
+      if (keyboardInset < 50) {
         applyLift(0);
         return;
       }
@@ -973,15 +983,31 @@ function useAndroidCaretKeyboardLift() {
       raf = window.requestAnimationFrame(update);
     };
 
+    const handleWindowResize = () => {
+      const currentHeight = window.innerHeight;
+      if (currentHeight > initialInnerHeight) {
+        initialInnerHeight = currentHeight;
+        fallbackKeyboardHeight = 0;
+      } else {
+        const diff = initialInnerHeight - currentHeight;
+        fallbackKeyboardHeight = diff > 150 ? diff : 0;
+      }
+      if (focusedElement) requestUpdate();
+    };
+
     const handleFocusIn = (event: FocusEvent) => {
       const target = event.target;
       if (!isKeyboardEditableElement(target)) return;
       focusedElement = target;
+      if (fallbackKeyboardHeight === 0) {
+        initialInnerHeight = Math.max(initialInnerHeight, window.innerHeight);
+      }
       requestUpdate();
     };
 
     const handleFocusOut = () => {
       focusedElement = null;
+      fallbackKeyboardHeight = 0;
       applyLift(0);
     };
 
@@ -1000,6 +1026,7 @@ function useAndroidCaretKeyboardLift() {
     document.addEventListener("input", handleCaretMove, true);
     viewport?.addEventListener("resize", handleViewportChange);
     viewport?.addEventListener("scroll", handleViewportChange);
+    window.addEventListener("resize", handleWindowResize);
 
     return () => {
       if (raf) window.cancelAnimationFrame(raf);
@@ -1010,6 +1037,7 @@ function useAndroidCaretKeyboardLift() {
       document.removeEventListener("input", handleCaretMove, true);
       viewport?.removeEventListener("resize", handleViewportChange);
       viewport?.removeEventListener("scroll", handleViewportChange);
+      window.removeEventListener("resize", handleWindowResize);
       root.style.removeProperty("--mobile-keyboard-lift");
     };
   }, []);
