@@ -102,10 +102,11 @@ export function ChatContactsList({ onCloseApp, onSelectSession, onSelectMascot, 
     }
 
     const refresh = useCallback(() => {
+        const currentChars = loadCharacters();
         const rawContacts = loadChatContactsForActiveUser();
         const enriched = rawContacts.map(c => ({
             ...c,
-            char: chars.find(ch => ch.id === c.characterId)
+            char: currentChars.find(ch => ch.id === c.characterId)
         })).filter(c => c.char);
         enriched.sort((a, b) => (a.char?.name || "").localeCompare(b.char?.name || ""));
         setContacts(enriched);
