@@ -663,7 +663,13 @@ export async function generateCoCreateReply(
         toolCalls = streamedToolCalls;
       } catch (streamError) {
         if (options?.signal?.aborted) throw streamError;
-        await callbacks?.onStreamFallback?.(formatErrorMessage(streamError));
+        if (streamedRaw.trim()) {
+          raw = streamedRaw.trim();
+          cleanOutput = streamVisibleText.trim();
+          toolCalls = streamedToolCalls;
+        } else {
+          await callbacks?.onStreamFallback?.(formatErrorMessage(streamError));
+        }
       }
     }
 
